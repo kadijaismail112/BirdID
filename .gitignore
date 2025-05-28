@@ -1,0 +1,8 @@
+clt_bird_call/
+other_bird_call/
+
+# Audio files
+*.wav
+*.mp3
+clt_bird_call/
+other_bird_call/
