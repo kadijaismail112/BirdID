@@ -1,1 +1,11 @@
-pydub==0.25.1 
+birdnetlib==0.18.0
+tensorflow==2.16.1
+librosa==0.11.0
+numpy>=1.26.4
+tqdm>=4.67.1
+matplotlib>=3.9.4
+scikit-learn>=1.6.1
+tensorflow-metal==1.2.0  # for MacOS metal support
+pydub==0.25.1
+requests>=2.32.3
+watchdog>=2.1.9
