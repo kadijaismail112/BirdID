@@ -1,10 +1,12 @@
 import time
 import numpy as np
 import sounddevice as sd
-import tensorflow as tf   # or: `from tflite_runtime.interpreter import Interpreter`
+sd.default.device = 0 
+import tensorflow as tf
+import matplotlib.pyplot as plt
 
 # ======================================
-# 1. Load your 11 class names from labels.txt
+# 1. Load species (class) names from labels.txt
 # ======================================
 LABELS_PATH = "new_model2_Labels.txt"
 with open(LABELS_PATH, "r") as f:
@@ -20,7 +22,7 @@ for idx, name in enumerate(LABELS):
 # ======================================
 # 2. Model & Recording Parameters
 # ======================================
-MODEL_PATH = "new_model2.tflite"  # your TFLite file
+MODEL_PATH = "new_model2.tflite"  # TFLite file
 SAMPLE_RATE = 48000
 DURATION_SEC = 3.0
 NUM_SAMPLES = int(SAMPLE_RATE * DURATION_SEC)  # 144000
@@ -39,7 +41,9 @@ def record_waveform() -> np.ndarray:
         channels=1,
         dtype="float32"
     )   # shape: (144000, 1)
+    print(sd.query_devices())
     sd.wait()  # block until recording is done
+    
     return audio[:, 0]  # flatten to shape (144000,)
 
 # ======================================
@@ -69,19 +73,25 @@ if num_classes != len(LABELS):
 # 5. Real‐time inference loop
 # ======================================
 def run_realtime_inference():
+    devices = sd.query_devices()
+    #for idx, dev in enumerate(devices):
+        #if dev['max_input_channels'] > 0:
+        #    print(f"Input #{idx}: {dev['name']} (Channels: {dev['max_input_channels']})")
+    
     print("Starting real‐time inference. Press Ctrl+C to stop.\n")
     try:
         while True:
             t0 = time.time()
-
-            # 5.1 Record raw waveform
+            
+            # Record raw waveform
             waveform = record_waveform()  # shape: (144000,)
 
-            # 5.2 Convert to shape [1, 144000] (batch dimension)
+            # Convert to shape [1, 144000] (batch dimension)
             input_tensor = waveform[np.newaxis, :].astype(np.float32)  
-            # dtype float32 is important if your TFLite model expects float32
-
-            # 5.3 Feed into TFLite interpreter
+            # dtype float32 to align with TFLite model, expects float32
+            #(f"Waveform min/max: {np.min(waveform)}, {np.max(waveform)}")
+            #print(f"Input tensor shape: {input_tensor.shape}, dtype: {input_tensor.dtype}")
+            # Feed into TFLite interpreter
             interpreter.set_tensor(input_details[0]["index"], input_tensor)
             interpreter.invoke()
             output_data = interpreter.get_tensor(output_details[0]["index"])[0]
