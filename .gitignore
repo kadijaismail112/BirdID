@@ -6,4 +6,5 @@ other_bird_call/
 *.mp3
 clt_bird_call/
 other_bird_call/
-birdnet_backbone
+birdnet_backbone/
+preprocessed_audio/
